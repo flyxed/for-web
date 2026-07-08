@@ -14,6 +14,8 @@ Track the project roadmap on <a href="https://op.stoatinternal.com/projects/revo
 </div>
 <br/>
 
+This fork replaces the UI .ogg SFX files with Discord's SFX.
+
 ## Development Guide
 
 Before contributing, make yourself familiar with [our contribution guidelines](https://developers.stoat.chat/developing/contrib/), the [code style guidelines](./GUIDELINES.md), and the [technical documentation for this project](https://stoatchat.github.io/for-web/).
