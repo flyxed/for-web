@@ -1,9 +1,10 @@
 import { Accessor, For, Match, Show, Switch } from "solid-js";
 
-import { Trans } from "@lingui-solid/solid/macro";
+import { Trans } from "@lingui/solid/macro";
 import { File, Message } from "stoat.js";
 
 import { useClient, useUser } from "@revolt/client";
+import { useInstance } from "@revolt/instance";
 import { CustomEmoji, UnicodeEmoji } from "@revolt/markdown/emoji";
 import { useModals } from "@revolt/modal";
 import { useState } from "@revolt/state";
@@ -45,6 +46,7 @@ export function MessageContextMenu(props: {
 }) {
   const user = useUser();
   const state = useState();
+  const instance = useInstance();
   const client = useClient();
   const { openModal, showError } = useModals();
 
@@ -95,11 +97,29 @@ export function MessageContextMenu(props: {
   }
 
   /**
+   * Pin/unpin the message
+   */
+  function pinMessage(ev: MouseEvent) {
+    if (ev.shiftKey) {
+      if (props.message!.pinned) {
+        props.message!.unpin().catch(showError);
+      } else {
+        props.message!.pin().catch(showError);
+      }
+    } else {
+      openModal({
+        type: "pin_message",
+        message: props.message!,
+      });
+    }
+  }
+
+  /**
    * Open message in Stoat Admin Panel
    */
   function openAdminPanel() {
     window.open(
-      `https://old-admin.stoatinternal.com/panel/inspect/message/${props.message!.id}`,
+      `https://admin.stoatinternal.com/panel/inspect/message/${props.message!.id}`,
       "_blank",
     );
   }
@@ -109,9 +129,11 @@ export function MessageContextMenu(props: {
    */
   function copyMessageLink() {
     navigator.clipboard.writeText(
-      `${location.origin}${
-        props.message!.server ? `/server/${props.message!.server?.id}` : ""
-      }/channel/${props.message!.channelId}/${props.message!.id}`,
+      instance.href(
+        `${
+          props.message!.server ? `/server/${props.message!.server?.id}` : ""
+        }/channel/${props.message!.channelId}/${props.message!.id}`,
+      ),
     );
   }
 
@@ -126,14 +148,14 @@ export function MessageContextMenu(props: {
    * Opens the file preview in a new tab
    */
   function openFile() {
-    window.open(props.file?.originalUrl, "_blank");
+    window.open(props.file?.previewUrl, "_blank");
   }
 
   /**
    * Copies the link to the original url of the file
    */
   function copyFileLink() {
-    navigator.clipboard.writeText(props.file?.originalUrl ?? "");
+    navigator.clipboard.writeText(props.file?.previewUrl ?? "");
   }
 
   function copyLink() {
@@ -215,16 +237,7 @@ export function MessageContextMenu(props: {
             props.message!.channel?.havePermission("ManageMessages")
           }
         >
-          <ContextMenuButton
-            icon={MdPin}
-            onClick={() => {
-              if (props.message!.pinned) {
-                props.message!.unpin().catch(showError);
-              } else {
-                props.message!.pin().catch(showError);
-              }
-            }}
-          >
+          <ContextMenuButton icon={MdPin} onClick={pinMessage}>
             <Switch fallback={<Trans>Pin message</Trans>}>
               <Match when={props.message!.pinned}>
                 <Trans>Unpin message</Trans>

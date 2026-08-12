@@ -1,7 +1,7 @@
 import HCaptcha, { HCaptchaFunctions } from "solid-hcaptcha";
 import { createSignal, For, JSX, Show } from "solid-js";
 
-import { useLingui } from "@lingui-solid/solid/macro";
+import { useLingui } from "@lingui/solid/macro";
 
 import { Checkbox, Column, iconSize, Text, TextField } from "@revolt/ui";
 import { styled } from "styled-system/jsx";
@@ -52,6 +52,7 @@ const useFieldConfiguration = () => {
       "toggle-password": true,
       showPasswordIcon: "visibility",
       hidePasswordIcon: "visibility_off",
+      autocomplete: "current-password",
       name: () => t`Password`,
       placeholder: () => t`Enter your current password.`,
     },
@@ -113,7 +114,7 @@ export function Fields(props: FieldProps) {
           field = { field: field };
         }
         return (
-          <label>
+          <>
             {field.field === "log-out" ? (
               <Checkbox name={field.field}>
                 {fieldConfiguration[field.field].name()}
@@ -129,7 +130,7 @@ export function Fields(props: FieldProps) {
                 value={field.value}
               />
             )}
-          </label>
+          </>
         );
       }}
     </For>
